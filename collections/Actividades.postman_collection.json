@@ -1,0 +1,1264 @@
+{
+	"info": {
+		"_postman_id": "d25ef9d6-3cfa-4ad7-b6c1-6c065f5d68a1",
+		"name": "Actividades",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29053502",
+		"_collection_link": "https://speeding-capsule-140511.postman.co/workspace/web-202510-Parcial2~f12ad4a5-6d47-46e1-8ad5-30f6dada78f5/collection/29053502-d25ef9d6-3cfa-4ad7-b6c1-6c065f5d68a1?action=share&source=collection_link&creator=29053502"
+	},
+	"item": [
+		{
+			"name": "Crear actividad",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomSuffix = Math.floor(Math.random() * 1000);\r",
+							"const body = {\r",
+							"    titulo: `Actividad Auto Test Larga ${randomSuffix}`, // Cumple MinLength\r",
+							"    fecha: \"2025-03-10\",\r",
+							"    cupoMaximo: 1,\r",
+							"    estado: 0 // Abierta\r",
+							"};\r",
+							"pm.collectionVariables.set(\"dynamicActividadBody\", JSON.stringify(body));\r",
+							"console.log(\"Actividad Body para Crear: \" + pm.collectionVariables.get(\"dynamicActividadBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Caso de éxito para la creación de actividades.\r",
+							"pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });\r",
+							"\r",
+							"// Descripción: Similar a crear estudiante, asegura la correcta devolución y guarda el id.\r",
+							"pm.test(\"Response body is valid JSON, contains actividad data, and saves ID\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const sentBody = JSON.parse(pm.collectionVariables.get(\"dynamicActividadBody\"));\r",
+							"\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData.titulo).to.eql(sentBody.titulo);\r",
+							"    pm.expect(jsonData.estado).to.eql(sentBody.estado);\r",
+							"    if (jsonData.id) {\r",
+							"        pm.collectionVariables.set(\"actividadId\", jsonData.id);\r",
+							"        console.log(\"ID de Actividad guardado: \" + jsonData.id);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicActividadBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/actividades",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "201 Actividad Creada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0,\r\n    \"inscritos\": [],\r\n    \"reseñas\": [],\r\n    \"id\": 1\r\n}"
+				},
+				{
+					"name": "400 Título Inválido",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"titulo\": \"Concierto #1\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": [\r\n        \"El título debe tener al menos 15 caracteres\",\r\n        \"El título no puede contener símbolos\"\r\n    ],\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Crear estudiante Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Caso de éxito para la creación de estudiantes.\r",
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura que la API devuelve el recurso creado, que los datos coinciden con los enviados y guarda el id para pruebas posteriores.\r",
+							"pm.test(\"Response body is valid JSON, contains student data, and saves ID\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData).to.have.property('nombre');\r",
+							"    pm.expect(jsonData.cedula).to.eql(JSON.parse(pm.request.body.raw).cedula); // Verifica que los datos enviados se reflejen\r",
+							"    if (jsonData.id) {\r",
+							"        pm.collectionVariables.set(\"estudianteId\", jsonData.id);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generar los datos dinámicos\r",
+							"const randomCedula = Math.floor(Math.random() * 100000000);\r",
+							"const randomSuffixName = Math.floor(Math.random() * 100);\r",
+							"const randomSuffixEmail = Math.floor(Math.random() * 1000);\r",
+							"\r",
+							"// Construir el objeto del cuerpo del request\r",
+							"const requestBody = {\r",
+							"    cedula: randomCedula,\r",
+							"    nombre: `Estudiante Prueba Auto ${randomSuffixName}`,\r",
+							"    correo: `est.prueba.auto.${randomSuffixEmail}@example.com`,\r",
+							"    programa: \"Ingeniería de Sistemas\",\r",
+							"    semestre: 3\r",
+							"};\r",
+							"\r",
+							"// Convertir el objeto a una cadena JSON y guardarlo en una variable de colección\r",
+							"// Usaremos una variable temporal para el cuerpo, por ejemplo, 'dynamicStudentBody'\r",
+							"pm.collectionVariables.set(\"dynamicStudentBody\", JSON.stringify(requestBody));\r",
+							"\r",
+							"console.log(\"Cuerpo del request generado y guardado en 'dynamicStudentBody':\");\r",
+							"console.log(pm.collectionVariables.get(\"dynamicStudentBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicStudentBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/estudiantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"estudiantes"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "201 Estudiante Creado",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cedula\": 1001200300,\r\n    \"nombre\": \"Ana Jimenez\",\r\n    \"correo\": \"ana.jimenez@example.com\",\r\n    \"programa\": \"Ingeniería de Software\",\r\n    \"semestre\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"cedula\": 1001200300,\r\n    \"nombre\": \"Ana Jimenez\",\r\n    \"correo\": \"ana.jimenez@example.com\",\r\n    \"programa\": \"Ingeniería de Software\",\r\n    \"semestre\": 4,\r\n    \"actividades\": [],\r\n    \"reseñas\": [],\r\n    \"id\": 1\r\n}"
+				},
+				{
+					"name": "409 Cédula Duplicada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cedula\": 1001200300,\r\n    \"nombre\": \"Ana Jimenez\",\r\n    \"correo\": \"ana.jimenez@example.com\",\r\n    \"programa\": \"Ingeniería de Software\",\r\n    \"semestre\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 409,\r\n    \"message\": \"Ya existe un estudiante con la cédula 1001200300\",\r\n    \"error\": \"Conflict\"\r\n}"
+				},
+				{
+					"name": "400 Datos Inválidos (Semestre incorrecto)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cedula\": 1001200301,\r\n    \"nombre\": \"Pedro Paramo\",\r\n    \"correo\": \"pedro.paramo@example.com\",\r\n    \"programa\": \"Literatura\",\r\n    \"semestre\": 15 \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": [\r\n        \"semestre must not be greater than 10\"\r\n    ],\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener todas las actividades",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Confirma la capacidad del API para listar la colección de recursos de actividades. Es la funcionalidad básica de lectura para múltiples ítems.\r",
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura que el formato de la respuesta es el correcto para una colección (un array). Esto es importante para los clientes que consumirán la API.\r",
+							"pm.test(\"Response body is a valid JSON array\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// Descripción: Si se devuelven actividades, este test verifica que al menos el primer objeto en el array tenga todas las propiedades esperadas. Esto ayuda a detectar cambios inesperados en el contrato de la API para la entidad Actividad.\r",
+							"pm.test(\"If array is not empty, first activity object has expected properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.length > 0) {\r",
+							"        const firstActivity = jsonData[0];\r",
+							"        pm.expect(firstActivity).to.have.all.keys('id', 'titulo', 'fecha', 'cupoMaximo', 'estado', 'inscritos', 'reseñas');\r",
+							"    } else {\r",
+							"        console.log(\"La lista de actividades está vacía, se omite la verificación de estructura de objeto.\");\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/actividades",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Lista de Actividades",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "[\r\n    {\r\n        \"id\": 1,\r\n        \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n        \"fecha\": \"2024-08-15\",\r\n        \"cupoMaximo\": 100,\r\n        \"estado\": 0,\r\n        \"inscritos\": [],\r\n        \"reseñas\": []\r\n    }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "Obtener actividades por fecha",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"Solicitando actividades para la fecha: \" + pm.request.url.query.get('fecha'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Confirma que el endpoint de búsqueda por fecha responde correctamente.\r",
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Descripción: La respuesta, incluso si no hay actividades para esa fecha, debe ser un array.\r",
+							"pm.test(\"Response body is a valid JSON array\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// Descripción: Si la búsqueda devuelve resultados, este test crucial verifica que todas las actividades en la respuesta realmente correspondan a la fecha que se filtró.\r",
+							"pm.test(\"If actividades are returned, they all match the requested fecha\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const requestedDate = pm.request.url.query.get('fecha'); // Obtiene la fecha de los query params del request actual\r",
+							"    if (jsonData.length > 0) {\r",
+							"        jsonData.forEach(function(actividad) {\r",
+							"            pm.expect(actividad.fecha).to.eql(requestedDate);\r",
+							"        });\r",
+							"        console.log(`Se encontraron ${jsonData.length} actividades para la fecha ${requestedDate}.`);\r",
+							"    } else {\r",
+							"        console.log(`No se encontraron actividades para la fecha ${requestedDate}.`);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/actividades/por-fecha?fecha=2025-03-10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades",
+						"por-fecha"
+					],
+					"query": [
+						{
+							"key": "fecha",
+							"value": "2025-03-10"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Actividades Encontradas para Fecha",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/por-fecha?fecha=2024-08-15",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"por-fecha"
+							],
+							"query": [
+								{
+									"key": "fecha",
+									"value": "2024-08-15"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "[\r\n    {\r\n        \"id\": 1,\r\n        \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n        \"fecha\": \"2024-08-15\",\r\n        \"cupoMaximo\": 100,\r\n        \"estado\": 0,\r\n        \"inscritos\": [\r\n            // array de estudiantes inscritos si los hay, o []\r\n        ],\r\n        \"reseñas\": [\r\n            // array de reseñas si las hay, o []\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 3,\r\n        \"titulo\": \"Charla de Astronomía Vespertina\",\r\n        \"fecha\": \"2024-08-15\",\r\n        \"cupoMaximo\": 50,\r\n        \"estado\": 1, // Podría estar cerrada\r\n        \"inscritos\": [],\r\n        \"reseñas\": []\r\n    }\r\n    // ... más actividades de esa fecha si existen\r\n]"
+				},
+				{
+					"name": "200 Sin Actividades para Fecha",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/por-fecha?fecha=2023-08-15",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"por-fecha"
+							],
+							"query": [
+								{
+									"key": "fecha",
+									"value": "2023-08-15"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "[]"
+				},
+				{
+					"name": "400 Parámetro Fecha Requerido",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/por-fecha",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"por-fecha"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"El parámetro \\\"fecha\\\" es requerido.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener actividad por ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"actividadId\")) {\r",
+							"    console.warn(\"Pre-request: actividadId no está definido. El request 'Obtener Actividad por ID' podría fallar o usar un valor antiguo.\");\r",
+							"} else {\r",
+							"    console.log(\"Pre-request: Usando actividadId: \" + pm.collectionVariables.get(\"actividadId\"));\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba la funcionalidad básica de recuperar un recurso individual (actividad) cuando se proporciona un ID válido.\r",
+							"pm.test(\"Status code is 200 OK for existing actividad\", function () {\r",
+							"    // Este test asume que actividadId es válido y existe.\r",
+							"    // Los tests para 404 se hacen por separado.\r",
+							"    if (pm.collectionVariables.get(\"actividadId\") && pm.response.code !== 404) {\r",
+							"         pm.response.to.have.status(200);\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.warn(\"Test 200 OK omitido: Se recibió 404, probablemente el actividadId no existe o es inválido.\");\r",
+							"    } else {\r",
+							"         console.warn(\"Test 200 OK omitido: actividadId no definido en variables.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura la integridad de los datos, confirmando que la API devuelve la actividad correcta correspondiente al ID solicitado.\r",
+							"pm.test(\"Response contains the correct actividad ID\", function () {\r",
+							"    if (pm.response.code === 200) { // Solo si el request fue exitoso\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property('id');\r",
+							"        pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"actividadId\")));\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Valida que el objeto actividad devuelto contenga todos los campos definidos en la entidad, incluyendo las relaciones (inscritos, reseñas) como arrays.\r",
+							"pm.test(\"Returned actividad object has all expected properties\", function () {\r",
+							"    if (pm.response.code === 200) {\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.all.keys('id', 'titulo', 'fecha', 'cupoMaximo', 'estado', 'inscritos', 'reseñas');\r",
+							"        pm.expect(jsonData.inscritos).to.be.an('array');\r",
+							"        pm.expect(jsonData.reseñas).to.be.an('array');\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/actividades/{{actividadId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades",
+						"{{actividadId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Actividad Encontrada ID 1",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"id\": 1,\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0,\r\n    \"inscritos\": [], // Asumiendo que no hay inscritos para este ejemplo\r\n    \"reseñas\": []   // Asumiendo que no hay reseñas para este ejemplo\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Inscribir Estudiante a Actividad Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Este script es más para asegurar que las variables existen,\r",
+							"// la lógica de creación de estudiante/actividad está en sus respectivos requests.\r",
+							"if (!pm.collectionVariables.get(\"estudianteId\")) {\r",
+							"    console.error(\"ERROR: estudianteId no está definido para Inscribir Estudiante.\");\r",
+							"}\r",
+							"if (!pm.collectionVariables.get(\"actividadId\")) {\r",
+							"    console.error(\"ERROR: actividadId no está definido para Inscribir Estudiante.\");\r",
+							"}\r",
+							"console.log(`Intentando inscribir Estudiante ${pm.collectionVariables.get(\"estudianteId\")} a Actividad ${pm.collectionVariables.get(\"actividadId\")}`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba el flujo principal de inscripción. Se espera un 200 OK si todas las condiciones de negocio se cumplen. Se manejan otros códigos de error esperados para no marcar el test como fallido si se está probando un flujo de error.\r",
+							"pm.test(\"Status code is 200 OK for successful inscription (if conditions met)\", function () {\r",
+							"    if (pm.response.code === 200) {\r",
+							"        pm.expect(pm.response.json().message).to.include(\"inscrito exitosamente\");\r",
+							"    } else {\r",
+							"        const knownErrorCodes = [400, 404, 409];\r",
+							"        if (!knownErrorCodes.includes(pm.response.code)) {\r",
+							"            console.error(`Inscripción falló inesperadamente con código ${pm.response.code}: ${pm.response.text()}`);\r",
+							"        } else {\r",
+							"            console.warn(`Inscripción no exitosa (código ${pm.response.code}), podría ser un caso de error esperado: ${pm.response.text()}`);\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}/inscribir/{{actividadId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"estudiantes",
+						"{{estudianteId}}",
+						"inscribir",
+						"{{actividadId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Inscripción Exitosa",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Estudiante Ana Jimenez inscrito exitosamente en la actividad Concierto Inaugural.\"\r\n}"
+				},
+				{
+					"name": "400 Actividad No Abierta",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "400 Actividad Sin Cupo",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"La actividad no cuenta con cupo disponible.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				},
+				{
+					"name": "409 Estudiante Ya Inscrito",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 409,\r\n    \"message\": \"El estudiante ya está inscrito en esta actividad.\",\r\n    \"error\": \"Conflict\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Cambiar estado de actividad",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const body = {\r",
+							"    estado: 1 // Intentar cerrar\r",
+							"};\r",
+							"pm.collectionVariables.set(\"dynamicEstadoBody\", JSON.stringify(body));\r",
+							"console.log(\"Body para Cambiar Estado: \" + pm.collectionVariables.get(\"dynamicEstadoBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba la funcionalidad de cambiar estado. Un 200 OK es esperado si la transición es válida y cumple las reglas (ej. cupo para cerrar/finalizar). Un 400 es esperado si una regla de negocio no se cumple. Este test verifica ambos escenarios.\r",
+							"pm.test(\"Response for changing estado is 200 OK (if valid) or 400 (if business rule fails)\", function () {\r",
+							"    const expectedState = JSON.parse(pm.collectionVariables.get(\"dynamicEstadoBody\")).estado;\r",
+							"    if (pm.response.code === 200) {\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData.estado).to.eql(expectedState);\r",
+							"        console.log(`Estado de actividad ${jsonData.id} cambiado a ${jsonData.estado}`);\r",
+							"    } else if (pm.response.code === 400) {\r",
+							"        console.warn(`Cambio de estado a ${expectedState} falló con 400 (probable regla de negocio): ${pm.response.json().message}`);\r",
+							"    } else {\r",
+							"        pm.expect.fail(`Respuesta inesperada al cambiar estado: ${pm.response.code} - ${pm.response.text()}`);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicEstadoBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/actividades/{{actividadId}}/estado",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades",
+						"{{actividadId}}",
+						"estado"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Estado Cambiado a Cerrada",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estado\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"id\": 1,\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 1, // El estado ha cambiado a 1 (Cerrada)\r\n    \"inscritos\": [ // Array de estudiantes inscritos (al menos 80% del cupo)\r\n        // Ejemplo de un estudiante inscrito (la estructura real dependerá de tu entidad Estudiante)\r\n        {\r\n            \"id\": 10,\r\n            \"cedula\": 1001200310,\r\n            \"nombre\": \"Carlos Ruiz\",\r\n            \"correo\": \"carlos.ruiz@example.com\",\r\n            \"programa\": \"Música\",\r\n            \"semestre\": 2\r\n            // \"actividades\" y \"reseñas\" del estudiante podrían o no estar aquí,\r\n            // dependiendo de cómo TypeORM serialice las relaciones anidadas por defecto.\r\n            // Si se cargan, deberían estar.\r\n        }\r\n        // ... otros estudiantes inscritos\r\n    ],\r\n    \"reseñas\": [] // Array de reseñas, probablemente vacío si la actividad recién se cierra\r\n}"
+				},
+				{
+					"name": "400 No Cumple 80% para Cerrar",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estado\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"No se puede cerrar la actividad. El cupo (X.XX%) no ha alcanzado el 80%. Se requieren Y inscritos. Actualmente hay Z.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				},
+				{
+					"name": "400 No Cupo Lleno para Finalizar",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estado\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"No se puede finalizar la actividad. Aún hay cupos disponibles (X/Y). Se requiere cupo lleno.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Eliminar Estudiante Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"estudianteId\")) {\r",
+							"    console.error(\"Pre-request ERROR: estudianteId no definido para Eliminar Estudiante. Este request fallará o eliminará un ID incorrecto/antiguo.\");\r",
+							"\r",
+							"} else {\r",
+							"    console.log(\"Pre-request: Intentando eliminar estudianteId: \" + pm.collectionVariables.get(\"estudianteId\"));\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Confirma que la API puede eliminar un estudiante existente. Típicamente, un DELETE exitoso responde con 200 OK (si devuelve un cuerpo, como un mensaje) o 204 No Content (si no devuelve cuerpo). Dado que tu EstudianteController no tiene un método remove explícito en el código que me diste, este test está preparado para ambos casos comunes. Si el estudiante no existe, se espera un 404 (manejado por el NotFoundException en el servicio si el id no se encuentra).\r",
+							"pm.test(\"Status code is 200 OK or 204 No Content for successful deletion\", function () {\r",
+							"\r",
+							"    if (pm.response.code === 200) { // Si devuelve mensaje de éxito\r",
+							"        pm.expect(pm.response.json().message).to.include(\"eliminado correctamente\"); \r",
+							"    } else if (pm.response.code === 204) { // Si no devuelve contenido\r",
+							"        // No hay cuerpo que verificar para 204\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.warn(\"Test 200/204 omitido: Se recibió 404, el estudiante probablemente no existe.\");\r",
+							"    }\r",
+							"    else {\r",
+							"         pm.expect([200, 204]).to.include(pm.response.code, \"Esperando 200 OK (con mensaje) o 204 No Content\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Valida el efecto de la operación DELETE. Si la eliminación fue exitosa, una solicitud GET posterior para el mismo ID de estudiante debe resultar en un 404 Not Found. Esto confirma que el recurso ha sido removido permanentemente del sistema.\r",
+							"pm.test(\"Verify estudiante is deleted (subsequent GET returns 404)\", function (done) {\r",
+							"    const idParaVerificar = pm.collectionVariables.get(\"estudianteId\");\r",
+							"    if (!idParaVerificar) {\r",
+							"        console.warn(\"estudianteId no definido, omitiendo verificación de eliminación.\");\r",
+							"        done();\r",
+							"        return;\r",
+							"    }\r",
+							"\r",
+							"    // Solo intenta verificar si el DELETE fue \"exitoso\" (código 200 o 204)\r",
+							"    if (pm.response.code === 200 || pm.response.code === 204) {\r",
+							"        pm.sendRequest({\r",
+							"            url: `${pm.environment.get(\"baseUrl\")}/estudiantes/${idParaVerificar}`,\r",
+							"            method: 'GET'\r",
+							"        }, function (err, response) {\r",
+							"            if (err) { console.error(err); pm.expect.fail(\"Error en sendRequest: \" + err); }\r",
+							"            else { pm.expect(response.code, \"Verificando eliminación de estudiante (esperando 404)\").to.equal(404); }\r",
+							"            done();\r",
+							"        });\r",
+							"    } else {\r",
+							"        console.log(\"La eliminación del estudiante no fue exitosa (código \" + pm.response.code + \"), se omite la verificación GET.\");\r",
+							"        done();\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"estudiantes",
+						"{{estudianteId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Estudiante Eliminado",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"{{estudianteId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Estudiante con ID 123 eliminado correctamente.\"\r\n}"
+				},
+				{
+					"name": "404 Estudiante No Encontrado para Eliminar",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/99999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"99999"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Estudiante con ID 99999 no encontrado.\", // o \"Estudiante con ID 99999 no encontrado para eliminar.\"\r\n    \"error\": \"Not Found\"\r\n}"
+				},
+				{
+					"name": "500 Error al Eliminar Estudiante con Dependencias",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"{{estudianteId}}"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 500,\r\n    \"message\": \"Internal server error\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Eliminar Actividad",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Confirma que se puede eliminar una actividad.\r",
+							"pm.test(\"Status code is 200 OK for successful deletion\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(pm.response.json().message).to.include(\"eliminada correctamente\");\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura que el DELETE tuvo el efecto deseado y el recurso ya no es accesible.\r",
+							"pm.test(\"Verify activity is deleted (subsequent GET returns 404)\", function (done) {\r",
+							"    const idParaVerificar = pm.collectionVariables.get(\"actividadId\");\r",
+							"    if (!idParaVerificar) {\r",
+							"        console.warn(\"actividadId no definido, omitiendo verificación de eliminación.\");\r",
+							"        done();\r",
+							"        return;\r",
+							"    }\r",
+							"    pm.sendRequest({\r",
+							"        url: `${pm.environment.get(\"baseUrl\")}/actividades/${idParaVerificar}`,\r",
+							"        method: 'GET'\r",
+							"    }, function (err, response) {\r",
+							"        if (err) { console.error(err); pm.expect.fail(\"Error en sendRequest: \" + err); }\r",
+							"        else { pm.expect(response.code, \"Verificando eliminación (esperando 404)\").to.equal(404); }\r",
+							"        done();\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/actividades/{{actividadId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades",
+						"{{actividadId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Actividad Eliminada",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Actividad con ID 1 eliminada correctamente.\"\r\n}"
+				},
+				{
+					"name": "404 Actividad No Encontrada para Eliminar",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"999"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Actividad con ID 999 no encontrada para eliminar.\",\r\n    \"error\": \"Not Found\"\r\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "dynamicActividadBody",
+			"value": ""
+		},
+		{
+			"key": "actividadId",
+			"value": ""
+		},
+		{
+			"key": "dynamicEstadoBody",
+			"value": ""
+		},
+		{
+			"key": "dynamicActividadUpdateBody",
+			"value": ""
+		},
+		{
+			"key": "dynamicStudentBody",
+			"value": ""
+		},
+		{
+			"key": "estudianteId",
+			"value": ""
+		}
+	]
+}

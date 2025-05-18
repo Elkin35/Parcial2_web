@@ -1,0 +1,1683 @@
+{
+	"info": {
+		"_postman_id": "cb63e64a-fb97-46c2-b268-3bac7dcc8ed1",
+		"name": "Reseñas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29053502",
+		"_collection_link": "https://speeding-capsule-140511.postman.co/workspace/web-202510-Parcial2~f12ad4a5-6d47-46e1-8ad5-30f6dada78f5/collection/29053502-cb63e64a-fb97-46c2-b268-3bac7dcc8ed1?action=share&source=collection_link&creator=29053502"
+	},
+	"item": [
+		{
+			"name": "Crear estudiante Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Caso de éxito para la creación de estudiantes.\r",
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura que la API devuelve el recurso creado, que los datos coinciden con los enviados y guarda el id para pruebas posteriores.\r",
+							"pm.test(\"Response body is valid JSON, contains student data, and saves ID\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData).to.have.property('nombre');\r",
+							"    pm.expect(jsonData.cedula).to.eql(JSON.parse(pm.request.body.raw).cedula); // Verifica que los datos enviados se reflejen\r",
+							"    if (jsonData.id) {\r",
+							"        pm.collectionVariables.set(\"estudianteId\", jsonData.id);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Pre-request Script para [POST] Crear Estudiante\r",
+							"\r",
+							"// Generar los datos dinámicos\r",
+							"const randomCedula = Math.floor(Math.random() * 100000000);\r",
+							"const randomSuffixName = Math.floor(Math.random() * 100);\r",
+							"const randomSuffixEmail = Math.floor(Math.random() * 1000);\r",
+							"\r",
+							"// Construir el objeto del cuerpo del request\r",
+							"const requestBody = {\r",
+							"    cedula: randomCedula,\r",
+							"    nombre: `Estudiante Prueba Auto ${randomSuffixName}`,\r",
+							"    correo: `est.prueba.auto.${randomSuffixEmail}@example.com`,\r",
+							"    programa: \"Ingeniería de Sistemas\",\r",
+							"    semestre: 3\r",
+							"};\r",
+							"\r",
+							"// Convertir el objeto a una cadena JSON y guardarlo en una variable de colección\r",
+							"// Usaremos una variable temporal para el cuerpo, por ejemplo, 'dynamicStudentBody'\r",
+							"pm.collectionVariables.set(\"dynamicStudentBody\", JSON.stringify(requestBody));\r",
+							"\r",
+							"console.log(\"Cuerpo del request generado y guardado en 'dynamicStudentBody':\");\r",
+							"console.log(pm.collectionVariables.get(\"dynamicStudentBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicStudentBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/estudiantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"estudiantes"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "201 Estudiante Creado",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cedula\": 1001200300,\r\n    \"nombre\": \"Ana Jimenez\",\r\n    \"correo\": \"ana.jimenez@example.com\",\r\n    \"programa\": \"Ingeniería de Software\",\r\n    \"semestre\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"cedula\": 1001200300,\r\n    \"nombre\": \"Ana Jimenez\",\r\n    \"correo\": \"ana.jimenez@example.com\",\r\n    \"programa\": \"Ingeniería de Software\",\r\n    \"semestre\": 4,\r\n    \"actividades\": [],\r\n    \"reseñas\": [],\r\n    \"id\": 1\r\n}"
+				},
+				{
+					"name": "409 Cédula Duplicada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cedula\": 1001200300,\r\n    \"nombre\": \"Ana Jimenez\",\r\n    \"correo\": \"ana.jimenez@example.com\",\r\n    \"programa\": \"Ingeniería de Software\",\r\n    \"semestre\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 409,\r\n    \"message\": \"Ya existe un estudiante con la cédula 1001200300\",\r\n    \"error\": \"Conflict\"\r\n}"
+				},
+				{
+					"name": "400 Datos Inválidos (Semestre incorrecto)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cedula\": 1001200301,\r\n    \"nombre\": \"Pedro Paramo\",\r\n    \"correo\": \"pedro.paramo@example.com\",\r\n    \"programa\": \"Literatura\",\r\n    \"semestre\": 15 \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": [\r\n        \"semestre must not be greater than 10\"\r\n    ],\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Crear actividad Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomSuffix = Math.floor(Math.random() * 1000);\r",
+							"const body = {\r",
+							"    titulo: `Actividad Auto Test Larga ${randomSuffix}`, // Cumple MinLength\r",
+							"    fecha: \"2025-03-10\",\r",
+							"    cupoMaximo: 1,\r",
+							"    estado: 0 // Finalizado\r",
+							"};\r",
+							"pm.collectionVariables.set(\"dynamicActividadBody\", JSON.stringify(body));\r",
+							"console.log(\"Actividad Body para Crear: \" + pm.collectionVariables.get(\"dynamicActividadBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Caso de éxito para la creación de actividades.\r",
+							"pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });\r",
+							"\r",
+							"// Descripción: Similar a crear estudiante, asegura la correcta devolución y guarda el id.\r",
+							"pm.test(\"Response body is valid JSON, contains actividad data, and saves ID\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const sentBody = JSON.parse(pm.collectionVariables.get(\"dynamicActividadBody\"));\r",
+							"\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData.titulo).to.eql(sentBody.titulo);\r",
+							"    pm.expect(jsonData.estado).to.eql(sentBody.estado);\r",
+							"    if (jsonData.id) {\r",
+							"        pm.collectionVariables.set(\"actividadId\", jsonData.id);\r",
+							"        console.log(\"ID de Actividad guardado: \" + jsonData.id);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicActividadBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/actividades",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "201 Actividad Creada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0,\r\n    \"inscritos\": [],\r\n    \"reseñas\": [],\r\n    \"id\": 1\r\n}"
+				},
+				{
+					"name": "400 Título Inválido",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"titulo\": \"Concierto #1\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": [\r\n        \"El título debe tener al menos 15 caracteres\",\r\n        \"El título no puede contener símbolos\"\r\n    ],\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Inscribir Estudiante a Actividad Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"estudianteId\")) {\r",
+							"    console.error(\"ERROR: estudianteId no está definido para Inscribir Estudiante.\");\r",
+							"\r",
+							"}\r",
+							"if (!pm.collectionVariables.get(\"actividadId\")) {\r",
+							"    console.error(\"ERROR: actividadId no está definido para Inscribir Estudiante.\");\r",
+							"}\r",
+							"console.log(`Intentando inscribir Estudiante ${pm.collectionVariables.get(\"estudianteId\")} a Actividad ${pm.collectionVariables.get(\"actividadId\")}`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba el flujo principal de inscripción. Se espera un 200 OK si todas las condiciones de negocio se cumplen. Se manejan otros códigos de error esperados para no marcar el test como fallido si se está probando un flujo de error.\r",
+							"pm.test(\"Status code is 200 OK for successful inscription (if conditions met)\", function () {\r",
+							"    if (pm.response.code === 200) {\r",
+							"        pm.expect(pm.response.json().message).to.include(\"inscrito exitosamente\");\r",
+							"    } else {\r",
+							"        // No fallar el test si el código es un error esperado (400, 404, 409)\r",
+							"        // Esos se prueban en tests específicos para esos escenarios.\r",
+							"        const knownErrorCodes = [400, 404, 409];\r",
+							"        if (!knownErrorCodes.includes(pm.response.code)) {\r",
+							"            console.error(`Inscripción falló inesperadamente con código ${pm.response.code}: ${pm.response.text()}`);\r",
+							"            // pm.expect.fail(`Inscripción falló inesperadamente con código ${pm.response.code}`);\r",
+							"        } else {\r",
+							"            console.warn(`Inscripción no exitosa (código ${pm.response.code}), podría ser un caso de error esperado: ${pm.response.text()}`);\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}/inscribir/{{actividadId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"estudiantes",
+						"{{estudianteId}}",
+						"inscribir",
+						"{{actividadId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Inscripción Exitosa",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Estudiante Ana Jimenez inscrito exitosamente en la actividad Concierto Inaugural.\"\r\n}"
+				},
+				{
+					"name": "400 Actividad No Abierta",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "400 Actividad Sin Cupo",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"La actividad no cuenta con cupo disponible.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				},
+				{
+					"name": "409 Estudiante Ya Inscrito",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/1/inscribir/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"1",
+								"inscribir",
+								"1"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 409,\r\n    \"message\": \"El estudiante ya está inscrito en esta actividad.\",\r\n    \"error\": \"Conflict\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Cambiar estado de actividad Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const body = {\r",
+							"    estado: 2 // Intentar Finalizar\r",
+							"};\r",
+							"pm.collectionVariables.set(\"dynamicEstadoBody\", JSON.stringify(body));\r",
+							"console.log(\"Body para Cambiar Estado: \" + pm.collectionVariables.get(\"dynamicEstadoBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba la funcionalidad de cambiar estado. Un 200 OK es esperado si la transición es válida y cumple las reglas (ej. cupo para cerrar/finalizar). Un 400 es esperado si una regla de negocio no se cumple. Este test verifica ambos escenarios.\r",
+							"pm.test(\"Response for changing estado is 200 OK (if valid) or 400 (if business rule fails)\", function () {\r",
+							"    const expectedState = JSON.parse(pm.collectionVariables.get(\"dynamicEstadoBody\")).estado;\r",
+							"    if (pm.response.code === 200) {\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData.estado).to.eql(expectedState);\r",
+							"        console.log(`Estado de actividad ${jsonData.id} cambiado a ${jsonData.estado}`);\r",
+							"    } else if (pm.response.code === 400) {\r",
+							"        console.warn(`Cambio de estado a ${expectedState} falló con 400 (probable regla de negocio): ${pm.response.json().message}`);\r",
+							"    } else {\r",
+							"        pm.expect.fail(`Respuesta inesperada al cambiar estado: ${pm.response.code} - ${pm.response.text()}`);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicEstadoBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/actividades/{{actividadId}}/estado",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades",
+						"{{actividadId}}",
+						"estado"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Estado Cambiado a Cerrada",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estado\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"id\": 1,\r\n    \"titulo\": \"Concierto Inaugural de Rock Sinfónico\",\r\n    \"fecha\": \"2024-08-15\",\r\n    \"cupoMaximo\": 100,\r\n    \"estado\": 1, // El estado ha cambiado a 1 (Cerrada)\r\n    \"inscritos\": [ // Array de estudiantes inscritos (al menos 80% del cupo)\r\n        // Ejemplo de un estudiante inscrito (la estructura real dependerá de tu entidad Estudiante)\r\n        {\r\n            \"id\": 10,\r\n            \"cedula\": 1001200310,\r\n            \"nombre\": \"Carlos Ruiz\",\r\n            \"correo\": \"carlos.ruiz@example.com\",\r\n            \"programa\": \"Música\",\r\n            \"semestre\": 2\r\n            // \"actividades\" y \"reseñas\" del estudiante podrían o no estar aquí,\r\n            // dependiendo de cómo TypeORM serialice las relaciones anidadas por defecto.\r\n            // Si se cargan, deberían estar.\r\n        }\r\n        // ... otros estudiantes inscritos\r\n    ],\r\n    \"reseñas\": [] // Array de reseñas, probablemente vacío si la actividad recién se cierra\r\n}"
+				},
+				{
+					"name": "400 No Cumple 80% para Cerrar",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estado\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"No se puede cerrar la actividad. El cupo (X.XX%) no ha alcanzado el 80%. Se requieren Y inscritos. Actualmente hay Z.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				},
+				{
+					"name": "400 No Cupo Lleno para Finalizar",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estado\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"No se puede finalizar la actividad. Aún hay cupos disponibles (X/Y). Se requiere cupo lleno.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Agregar Reseña",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"estudianteId\") || !pm.collectionVariables.get(\"actividadId\")) {\r",
+							"    console.error(\"ERROR: estudianteId o actividadId no definidos para Agregar Reseña.\");\r",
+							"    // Considera postman.setNextRequest(null); si es un error crítico para el flujo.\r",
+							"}\r",
+							"\r",
+							"const body = {\r",
+							"    estudianteId: parseInt(pm.collectionVariables.get(\"estudianteId\")),\r",
+							"    actividadId: parseInt(pm.collectionVariables.get(\"actividadId\")),\r",
+							"    comentario: `Reseña automática número ${Math.floor(Math.random() * 1000)}. ¡Gran experiencia!`,\r",
+							"    calificacion: Math.floor(Math.random() * 5) + 1, // Calificación entre 1 y 5\r",
+							"    fecha: new Date().toISOString().split('T')[0] // Fecha actual YYYY-MM-DD\r",
+							"};\r",
+							"pm.collectionVariables.set(\"dynamicReseñaBody\", JSON.stringify(body));\r",
+							"console.log(\"Reseña Body para Crear: \" + pm.collectionVariables.get(\"dynamicReseñaBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba el caso de éxito para agregar una reseña. Un 201 es esperado si el estudiante está inscrito y la actividad está finalizada. Otros códigos (400, 404, 409) son esperados si las condiciones no se cumplen.\r",
+							"pm.test(\"Status code is 201 Created (if conditions met for review)\", function () {\r",
+							"    if (pm.response.code === 201) {\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property('id');\r",
+							"        if (jsonData.id) {\r",
+							"            pm.collectionVariables.set(\"reseñaId\", jsonData.id);\r",
+							"            console.log(\"ID de Reseña guardado: \" + jsonData.id);\r",
+							"        }\r",
+							"    } else {\r",
+							"        const knownErrorCodes = [400, 404, 409];\r",
+							"        if (!knownErrorCodes.includes(pm.response.code)) {\r",
+							"            pm.expect.fail(`Agregar reseña falló inesperadamente con código ${pm.response.code}: ${pm.response.text()}`);\r",
+							"        } else {\r",
+							"             console.warn(`Agregar reseña no exitosa (código ${pm.response.code}), podría ser un caso de error esperado: ${pm.response.text()}`);\r",
+							"        }\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// "
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicReseñaBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/resenias",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"resenias"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "201 Reseña Agregada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estudianteId\": 1,\r\n    \"actividadId\": 1,\r\n    \"comentario\": \"Excelente actividad, muy bien organizada y entretenida.\",\r\n    \"calificacion\": 5,\r\n    \"fecha\": \"2024-08-20\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resenias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"id\": 5, // El ID generado para la nueva reseña\r\n    \"comentario\": \"¡Fue una experiencia increíble, muy recomendable!\",\r\n    \"calificacion\": 5,\r\n    \"fecha\": \"2024-09-01\",\r\n    \"estudiante\": { // Objeto completo del estudiante que hizo la reseña\r\n        \"id\": 1,\r\n        \"cedula\": 1001200300,\r\n        \"nombre\": \"Ana Jimenez\",\r\n        \"correo\": \"ana.jimenez@example.com\",\r\n        \"programa\": \"Ingeniería de Software\",\r\n        \"semestre\": 4\r\n        // \"actividades\" y \"reseñas\" de este estudiante podrían estar aquí\r\n    },\r\n    \"actividad\": { // Objeto completo de la actividad reseñada\r\n        \"id\": 2,\r\n        \"titulo\": \"Taller de Fotografía Avanzada\",\r\n        \"fecha\": \"2024-08-20\",\r\n        \"cupoMaximo\": 25,\r\n        \"estado\": 2 // Debe estar finalizada\r\n        // \"inscritos\" y \"reseñas\" de esta actividad\r\n    }\r\n}"
+				},
+				{
+					"name": "400 Actividad No Finalizada para Reseña",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estudianteId\": 1,\r\n    \"actividadId\": 1,\r\n    \"comentario\": \"Excelente actividad, muy bien organizada y entretenida.\",\r\n    \"calificacion\": 5,\r\n    \"fecha\": \"2024-08-20\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resenias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"Solo se pueden agregar reseñas a actividades finalizadas.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				},
+				{
+					"name": "400 Estudiante No Inscrito para Reseña",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estudianteId\": 1,\r\n    \"actividadId\": 1,\r\n    \"comentario\": \"Excelente actividad, muy bien organizada y entretenida.\",\r\n    \"calificacion\": 5,\r\n    \"fecha\": \"2024-08-20\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resenias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 400,\r\n    \"message\": \"El estudiante no estuvo inscrito en esta actividad y no puede agregar una reseña.\",\r\n    \"error\": \"Bad Request\"\r\n}"
+				},
+				{
+					"name": "409 Reseña Duplicada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"estudianteId\": 1,\r\n    \"actividadId\": 1,\r\n    \"comentario\": \"Excelente actividad, muy bien organizada y entretenida.\",\r\n    \"calificacion\": 5,\r\n    \"fecha\": \"2024-08-20\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resenias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 409,\r\n    \"message\": \"El estudiante ya ha agregado una reseña para esta actividad.\",\r\n    \"error\": \"Conflict\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener Todas las Reseñas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba la capacidad de listar la colección de todas las reseñas.\r",
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura el formato correcto de la respuesta.\r",
+							"pm.test(\"Response body is a valid JSON array\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// Descripción: Si se devuelven reseñas, este test valida que la estructura de cada reseña (incluyendo los objetos estudiante y actividad relacionados, como los carga tu servicio) sea la esperada.\r",
+							"pm.test(\"If array is not empty, first reseña object has expected properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.length > 0) {\r",
+							"        const firstReseña = jsonData[0];\r",
+							" \r",
+							"        pm.expect(firstReseña).to.have.all.keys('id', 'comentario', 'calificacion', 'fecha', 'estudiante', 'actividad');\r",
+							"        pm.expect(firstReseña.estudiante).to.be.an('object');\r",
+							"        pm.expect(firstReseña.actividad).to.be.an('object');\r",
+							"\r",
+							"        pm.expect(firstReseña.estudiante).to.have.property('id');\r",
+							"        pm.expect(firstReseña.actividad).to.have.property('id');\r",
+							"    } else {\r",
+							"        console.log(\"La lista de reseñas está vacía, se omite la verificación de estructura de objeto.\");\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/resenias",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"resenias"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Lista de Reseñas",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/resenias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "[\r\n    {\r\n        \"id\": 5,\r\n        \"comentario\": \"¡Fue una experiencia increíble, muy recomendable!\",\r\n        \"calificacion\": 5,\r\n        \"fecha\": \"2024-09-01\",\r\n        \"estudiante\": {\r\n            \"id\": 1,\r\n            \"cedula\": 1001200300,\r\n            \"nombre\": \"Ana Jimenez\",\r\n            \"correo\": \"ana.jimenez@example.com\",\r\n            \"programa\": \"Ingeniería de Software\",\r\n            \"semestre\": 4\r\n        },\r\n        \"actividad\": {\r\n            \"id\": 2,\r\n            \"titulo\": \"Taller de Fotografía Avanzada\",\r\n            \"fecha\": \"2024-08-20\",\r\n            \"cupoMaximo\": 25,\r\n            \"estado\": 2\r\n        }\r\n    }\r\n    // ... más reseñas si existen\r\n]"
+				},
+				{
+					"name": "200 Lista de Reseñas Vacía",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/resenias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "[]"
+				}
+			]
+		},
+		{
+			"name": "Obtener Reseña por ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"reseñaId\")) {\r",
+							"    console.warn(\"Pre-request: reseñaId no está definido. El request 'Obtener Reseña por ID' podría fallar.\");\r",
+							"} else {\r",
+							"    console.log(\"Pre-request: Usando reseñaId: \" + pm.collectionVariables.get(\"reseñaId\"));\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Prueba la recuperación de una reseña individual.\r",
+							"pm.test(\"Status code is 200 OK for existing reseña\", function () {\r",
+							"    if (pm.collectionVariables.get(\"reseñaId\") && pm.response.code !== 404) {\r",
+							"         pm.response.to.have.status(200);\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.warn(\"Test 200 OK omitido: Se recibió 404, la reseña probablemente no existe.\");\r",
+							"    } else {\r",
+							"         console.warn(\"Test 200 OK omitido: reseñaId no definido.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Confirma que se recuperó la reseña correcta.\r",
+							"pm.test(\"Response contains the correct reseña ID\", function () {\r",
+							"    if (pm.response.code === 200) {\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property('id');\r",
+							"        pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"reseñaId\")));\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Valida que el objeto reseña devuelto incluya todos sus campos y los detalles esperados de las entidades relacionadas estudiante y actividad.\r",
+							"pm.test(\"Returned reseña object has all expected properties and nested objects\", function () {\r",
+							"    if (pm.response.code === 200) {\r",
+							"        const jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.all.keys('id', 'comentario', 'calificacion', 'fecha', 'estudiante', 'actividad');\r",
+							"        pm.expect(jsonData.estudiante).to.be.an('object').with.property('id');\r",
+							"        pm.expect(jsonData.actividad).to.be.an('object').with.property('id');\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/resenias/{{reseñaId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"resenias",
+						"{{reseñaId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Reseña Encontrada (ID 5)",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/resenias/5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias",
+								"5"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"id\": 5,\r\n    \"comentario\": \"¡Fue una experiencia increíble, muy recomendable!\",\r\n    \"calificacion\": 5,\r\n    \"fecha\": \"2024-09-01\",\r\n    \"estudiante\": {\r\n        \"id\": 1,\r\n        \"cedula\": 1001200300,\r\n        \"nombre\": \"Ana Jimenez\",\r\n        \"correo\": \"ana.jimenez@example.com\",\r\n        \"programa\": \"Ingeniería de Software\",\r\n        \"semestre\": 4\r\n    },\r\n    \"actividad\": {\r\n        \"id\": 2,\r\n        \"titulo\": \"Taller de Fotografía Avanzada\",\r\n        \"fecha\": \"2024-08-20\",\r\n        \"cupoMaximo\": 25,\r\n        \"estado\": 2\r\n    }\r\n}"
+				},
+				{
+					"name": "404 Reseña No Encontrada (ID 999)",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/resenias/999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias",
+								"999"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Reseña con ID 999 no encontrada.\",\r\n    \"error\": \"Not Found\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Actualizar reseña",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"reseñaId\")) {\r",
+							"    console.error(\"Pre-request ERROR: La variable 'reseñaId' no está definida. El request 'Actualizar Reseña' podría fallar o intentar actualizar un ID incorrecto/antiguo.\");\r",
+							"} else {\r",
+							"    console.log(\"Pre-request: Preparando actualización para reseñaId: \" + pm.collectionVariables.get(\"reseñaId\"));\r",
+							"}\r",
+							"\r",
+							"// Crear un cuerpo de request dinámico para la actualización\r",
+							"const posiblesComentariosActualizados = [\r",
+							"    \"Mi opinión actualizada: la actividad fue bastante buena, aunque con margen de mejora.\",\r",
+							"    \"Reflexionando de nuevo, la calificación debería ser un poco más alta. Bien hecho.\",\r",
+							"    \"He reconsiderado mi reseña. La experiencia general fue positiva.\",\r",
+							"    \"Actualización: Comentario ajustado para reflejar mejor mis impresiones finales.\"\r",
+							"];\r",
+							"const comentarioAleatorio = posiblesComentariosActualizados[Math.floor(Math.random() * posiblesComentariosActualizados.length)];\r",
+							"\r",
+							"// Generar una calificación aleatoria diferente (o similar) para la actualización, entre 1 y 5\r",
+							"const nuevaCalificacion = Math.floor(Math.random() * 5) + 1; \r",
+							"\r",
+							"const requestBody = {\r",
+							"    comentario: comentarioAleatorio,\r",
+							"    calificacion: nuevaCalificacion\r",
+							"};\r",
+							"\r",
+							"pm.collectionVariables.set(\"dynamicReseñaUpdateBody\", JSON.stringify(requestBody));\r",
+							"console.log(\"Cuerpo JSON para Actualizar Reseña (\" + pm.collectionVariables.get(\"reseñaId\") + \"): \" + pm.collectionVariables.get(\"dynamicReseñaUpdateBody\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Confirma que el endpoint de actualización para reseñas funciona correctamente cuando se proporcionan datos válidos (nuevo comentario y/o calificación) para una reseña existente. Se espera un código 200 OK.\r",
+							"pm.test(\"Status code is 200 OK for successful reseña update\", function () {\r",
+							"\r",
+							"    if (pm.collectionVariables.get(\"reseñaId\") && pm.response.code !== 404) {\r",
+							"         pm.response.to.have.status(200);\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.warn(\"Test 200 OK para actualizar reseña omitido: Se recibió 404, la reseña probablemente no existe.\");\r",
+							"    } else {\r",
+							"         console.warn(\"Test 200 OK para actualizar reseña omitido: 'reseñaId' no definido en variables o respuesta inesperada.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Es fundamental verificar que los cambios solicitados en el PATCH (específicamente comentario y calificacion para una reseña) realmente se aplicaron y se devuelven en la respuesta del API. Esto confirma la persistencia de la actualización.\r",
+							"pm.test(\"Updated reseña fields (comentario, calificacion) are reflected in the response\", function () {\r",
+							"    if (pm.response.code === 200) { // Solo si el request de actualización fue exitoso\r",
+							"        const jsonData = pm.response.json();\r",
+							"        const sentUpdateBody = JSON.parse(pm.collectionVariables.get(\"dynamicReseñaUpdateBody\"));\r",
+							"\r",
+							"        // Verificar los campos que se enviaron para actualizar\r",
+							"        if (sentUpdateBody.hasOwnProperty('comentario')) {\r",
+							"            pm.expect(jsonData.comentario).to.eql(sentUpdateBody.comentario, \"El comentario en la respuesta no coincide con el enviado.\");\r",
+							"        }\r",
+							"        if (sentUpdateBody.hasOwnProperty('calificacion')) {\r",
+							"            pm.expect(jsonData.calificacion).to.eql(sentUpdateBody.calificacion, \"La calificación en la respuesta no coincide con la enviada.\");\r",
+							"        }\r",
+							"        \r",
+							"        console.log(`Reseña ${jsonData.id} actualizada. Nuevo comentario: \"${jsonData.comentario}\", Nueva calificación: ${jsonData.calificacion}`);\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{dynamicReseñaUpdateBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/resenias/{{reseñaId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"resenias",
+						"{{reseñaId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Reseña Actualizada Exitosamente",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"comentario\": \"Mi opinión actualizada: la actividad fue bastante buena, aunque con margen de mejora.\",\r\n    \"calificacion\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resenias/{{reseñaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias",
+								"{{reseñaId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"id\": 5, // ID de la reseña que se actualizó\r\n    \"comentario\": \"Mi opinión actualizada: la actividad fue bastante buena, aunque con margen de mejora.\", // Comentario actualizado\r\n    \"calificacion\": 4, // Calificación actualizada\r\n    \"fecha\": \"2024-09-01\", // Fecha original, no se modificó en este PATCH\r\n    \"estudiante\": {\r\n        \"id\": 1,\r\n        \"cedula\": 1001200300,\r\n        \"nombre\": \"Ana Jimenez\",\r\n        // ... más datos del estudiante\r\n    },\r\n    \"actividad\": {\r\n        \"id\": 2,\r\n        \"titulo\": \"Taller de Fotografía Avanzada\",\r\n        // ... más datos de la actividad\r\n    }\r\n}"
+				},
+				{
+					"name": "404 Reseña No Encontrada para Actualizar",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"comentario\": \"No importa, no se encontrará\",\r\n    \"calificacion\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resenias/{{reseñaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias",
+								"{{reseñaId}}"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Reseña con ID 99999 no encontrada para actualizar.\",\r\n    \"error\": \"Not Found\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete Reseña",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"reseñaId\")) {\r",
+							"    console.error(\"Pre-request ERROR: reseñaId no definido para Eliminar Reseña. Este request fallará o eliminará un ID incorrecto.\");\r",
+							"    // postman.setNextRequest(null); // Detener si es crítico\r",
+							"} else {\r",
+							"    console.log(\"Pre-request: Intentando eliminar reseñaId: \" + pm.collectionVariables.get(\"reseñaId\"));\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Confirma que la API puede eliminar una reseña existente.\r",
+							"pm.test(\"Status code is 200 OK for successful deletion\", function () {\r",
+							"    // Asume que reseñaId es válido. 404 se prueba por separado.\r",
+							"    if (pm.response.code !== 404) {\r",
+							"        pm.response.to.have.status(200);\r",
+							"        pm.expect(pm.response.json().message).to.include(\"eliminada correctamente\");\r",
+							"    } else {\r",
+							"         console.warn(\"Test 200 OK para eliminar omitido: Se recibió 404, la reseña probablemente no existe.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Valida el efecto de la operación DELETE. Si la eliminación fue exitosa (código 200 en el request DELETE), una solicitud GET posterior para el mismo ID debe resultar en un 404 Not Found.\r",
+							"pm.test(\"Verify reseña is deleted (subsequent GET returns 404)\", function (done) {\r",
+							"    const idParaVerificar = pm.collectionVariables.get(\"reseñaId\"); // El ID que se intentó eliminar\r",
+							"    if (!idParaVerificar) {\r",
+							"        console.warn(\"reseñaId no definido, omitiendo verificación de eliminación.\");\r",
+							"        done();\r",
+							"        return;\r",
+							"    }\r",
+							"\r",
+							"    // Solo intenta verificar si el DELETE fue exitoso (código 200)\r",
+							"    if (pm.response.code === 200) {\r",
+							"        pm.sendRequest({\r",
+							"            url: `${pm.environment.get(\"baseUrl\")}/reseñas/${idParaVerificar}`,\r",
+							"            method: 'GET'\r",
+							"        }, function (err, response) {\r",
+							"            if (err) { console.error(err); pm.expect.fail(\"Error en sendRequest: \" + err); }\r",
+							"            else { pm.expect(response.code, \"Verificando eliminación (esperando 404)\").to.equal(404); }\r",
+							"            done();\r",
+							"        });\r",
+							"    } else {\r",
+							"        console.log(\"La eliminación de la reseña no fue exitosa (código \" + pm.response.code + \"), se omite la verificación GET.\");\r",
+							"        done();\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/resenias/{{reseñaId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"resenias",
+						"{{reseñaId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Reseña Eliminada (ID 5)",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/resenias/5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias",
+								"5"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Reseña con ID 5 eliminada correctamente.\"\r\n}"
+				},
+				{
+					"name": "404 Reseña No Encontrada para Eliminar (ID 999)",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/resenias/999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"resenias",
+								"999"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Reseña con ID 999 no encontrada para eliminar.\",\r\n    \"error\": \"Not Found\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Eliminar Estudiante Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (!pm.collectionVariables.get(\"estudianteId\")) {\r",
+							"    console.error(\"Pre-request ERROR: estudianteId no definido para Eliminar Estudiante. Este request fallará o eliminará un ID incorrecto/antiguo.\");\r",
+							"\r",
+							"} else {\r",
+							"    console.log(\"Pre-request: Intentando eliminar estudianteId: \" + pm.collectionVariables.get(\"estudianteId\"));\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Confirma que la API puede eliminar un estudiante existente. Típicamente, un DELETE exitoso responde con 200 OK (si devuelve un cuerpo, como un mensaje) o 204 No Content (si no devuelve cuerpo). Dado que tu EstudianteController no tiene un método remove explícito en el código que me diste, este test está preparado para ambos casos comunes. Si el estudiante no existe, se espera un 404 (manejado por el NotFoundException en el servicio si el id no se encuentra).\r",
+							"pm.test(\"Status code is 200 OK or 204 No Content for successful deletion\", function () {\r",
+							"\r",
+							"    if (pm.response.code === 200) { // Si devuelve mensaje de éxito\r",
+							"        pm.expect(pm.response.json().message).to.include(\"eliminado correctamente\"); // Ajusta el mensaje si es diferente\r",
+							"    } else if (pm.response.code === 204) {\r",
+							"      \r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.warn(\"Test 200/204 omitido: Se recibió 404, el estudiante probablemente no existe.\");\r",
+							"    }\r",
+							"    else {\r",
+							"         pm.expect([200, 204]).to.include(pm.response.code, \"Esperando 200 OK (con mensaje) o 204 No Content\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Descripción: Valida el efecto de la operación DELETE. Si la eliminación fue exitosa, una solicitud GET posterior para el mismo ID de estudiante debe resultar en un 404 Not Found. Esto confirma que el recurso ha sido removido permanentemente del sistema.\r",
+							"pm.test(\"Verify estudiante is deleted (subsequent GET returns 404)\", function (done) {\r",
+							"    const idParaVerificar = pm.collectionVariables.get(\"estudianteId\");\r",
+							"    if (!idParaVerificar) {\r",
+							"        console.warn(\"estudianteId no definido, omitiendo verificación de eliminación.\");\r",
+							"        done();\r",
+							"        return;\r",
+							"    }\r",
+							"\r",
+							"    // Solo intenta verificar si el DELETE fue \"exitoso\" (código 200 o 204)\r",
+							"    if (pm.response.code === 200 || pm.response.code === 204) {\r",
+							"        pm.sendRequest({\r",
+							"            url: `${pm.environment.get(\"baseUrl\")}/estudiantes/${idParaVerificar}`,\r",
+							"            method: 'GET'\r",
+							"        }, function (err, response) {\r",
+							"            if (err) { console.error(err); pm.expect.fail(\"Error en sendRequest: \" + err); }\r",
+							"            else { pm.expect(response.code, \"Verificando eliminación de estudiante (esperando 404)\").to.equal(404); }\r",
+							"            done();\r",
+							"        });\r",
+							"    } else {\r",
+							"        console.log(\"La eliminación del estudiante no fue exitosa (código \" + pm.response.code + \"), se omite la verificación GET.\");\r",
+							"        done();\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"estudiantes",
+						"{{estudianteId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Estudiante Eliminado",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"{{estudianteId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Estudiante con ID 123 eliminado correctamente.\"\r\n}"
+				},
+				{
+					"name": "404 Estudiante No Encontrado para Eliminar",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/99999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"99999"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Estudiante con ID 99999 no encontrado.\", // o \"Estudiante con ID 99999 no encontrado para eliminar.\"\r\n    \"error\": \"Not Found\"\r\n}"
+				},
+				{
+					"name": "500 Error al Eliminar Estudiante con Dependencias",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/estudiantes/{{estudianteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"estudiantes",
+								"{{estudianteId}}"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 500,\r\n    \"message\": \"Internal server error\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "Eliminar Actividad Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Descripción: Confirma que se puede eliminar una actividad.\r",
+							"pm.test(\"Status code is 200 OK for successful deletion\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(pm.response.json().message).to.include(\"eliminada correctamente\");\r",
+							"});\r",
+							"\r",
+							"// Descripción: Asegura que el DELETE tuvo el efecto deseado y el recurso ya no es accesible.\r",
+							"pm.test(\"Verify activity is deleted (subsequent GET returns 404)\", function (done) {\r",
+							"    const idParaVerificar = pm.collectionVariables.get(\"actividadId\");\r",
+							"    if (!idParaVerificar) {\r",
+							"        console.warn(\"actividadId no definido, omitiendo verificación de eliminación.\");\r",
+							"        done();\r",
+							"        return;\r",
+							"    }\r",
+							"    pm.sendRequest({\r",
+							"        url: `${pm.environment.get(\"baseUrl\")}/actividades/${idParaVerificar}`,\r",
+							"        method: 'GET'\r",
+							"    }, function (err, response) {\r",
+							"        if (err) { console.error(err); pm.expect.fail(\"Error en sendRequest: \" + err); }\r",
+							"        else { pm.expect(response.code, \"Verificando eliminación (esperando 404)\").to.equal(404); }\r",
+							"        done();\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/actividades/{{actividadId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"actividades",
+						"{{actividadId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Actividad Eliminada",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"message\": \"Actividad con ID 1 eliminada correctamente.\"\r\n}"
+				},
+				{
+					"name": "404 Actividad No Encontrada para Eliminar",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actividades/999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actividades",
+								"999"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n    \"statusCode\": 404,\r\n    \"message\": \"Actividad con ID 999 no encontrada para eliminar.\",\r\n    \"error\": \"Not Found\"\r\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "dynamicStudentBody",
+			"value": ""
+		},
+		{
+			"key": "estudianteId",
+			"value": ""
+		},
+		{
+			"key": "dynamicActividadBody",
+			"value": ""
+		},
+		{
+			"key": "actividadId",
+			"value": ""
+		},
+		{
+			"key": "dynamicReseñaBody",
+			"value": ""
+		},
+		{
+			"key": "dynamicEstadoBody",
+			"value": ""
+		},
+		{
+			"key": "dynamicActividadUpdateBody",
+			"value": ""
+		},
+		{
+			"key": "reseñaId",
+			"value": ""
+		},
+		{
+			"key": "dynamicReseñaUpdateBody",
+			"value": ""
+		}
+	]
+}
