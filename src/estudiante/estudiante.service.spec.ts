@@ -158,7 +158,7 @@ describe('EstudianteService', () => {
 
     it('debería lanzar ConflictException si el estudiante ya está inscrito (caso negativo)', async () => {
       const estudianteYaInscrito = { ...mockEstudiante, actividades: [mockActividad] };
-      const actividadAbierta = { ...mockActividad, estado: 0, inscritos: [mockEstudiante] }; // Suponemos que ya está en inscritos también
+      const actividadAbierta = { ...mockActividad, estado: 0, inscritos: [mockEstudiante] }; 
 
       estudianteRepository.findOne.mockResolvedValue(estudianteYaInscrito);
       actividadRepository.findOne.mockResolvedValue(actividadAbierta);

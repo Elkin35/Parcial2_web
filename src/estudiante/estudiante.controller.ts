@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, HttpCode, HttpStatus, Delete } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
-// import { UpdateEstudianteDto } from './dto/update-estudiante.dto'; // Si lo necesitas
 
-@Controller('estudiantes') // Plural es una convención común para colecciones de recursos
+@Controller('estudiantes') 
 export class EstudianteController {
-  constructor(private readonly estudianteService: EstudianteService) {}
+  constructor(private readonly estudianteService: EstudianteService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -24,7 +23,7 @@ export class EstudianteController {
   }
 
   @Post(':estudianteId/inscribir/:actividadId')
-  @HttpCode(HttpStatus.OK) // O CREATED si la inscripción crea un nuevo recurso de inscripción
+  @HttpCode(HttpStatus.OK) 
   inscribirseActividad(
     @Param('estudianteId', ParseIntPipe) estudianteId: number,
     @Param('actividadId', ParseIntPipe) actividadId: number,
@@ -32,14 +31,10 @@ export class EstudianteController {
     return this.estudianteService.inscribirseActividad(estudianteId, actividadId);
   }
 
-  // @Patch(':id')
-  // update(@Param('id', ParseIntPipe) id: number, @Body() updateEstudianteDto: UpdateEstudianteDto) {
-  //   return this.estudianteService.update(id, updateEstudianteDto);
-  // }
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK) 
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.estudianteService.remove(id);
+  }
 
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // remove(@Param('id', ParseIntPipe) id: number) {
-  //   return this.estudianteService.remove(id);
-  // }
 }

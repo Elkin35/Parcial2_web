@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Actividad } from './entities/actividad.entity';
 import { CreateActividadDto } from './dto/create-actividad.dto';
-import { UpdateActividadDto } from './dto/update-actividad.dto'; // Necesario para update
+import { UpdateActividadDto } from './dto/update-actividad.dto';
 
 @Injectable()
 export class ActividadService {
@@ -13,12 +13,11 @@ export class ActividadService {
   ) {}
 
   async crearActividad(createActividadDto: CreateActividadDto): Promise<Actividad> {
-    // Validaciones de DTO (longitud título, sin símbolos) las maneja ValidationPipe.
-    // El estado por defecto es 0, ya definido en el DTO.
+
     const actividad = this.actividadRepository.create({
       ...createActividadDto,
-      inscritos: [], // Inicializar si es necesario, aunque TypeORM puede manejarlo
-      reseñas: [],   // Inicializar si es necesario
+      inscritos: [],
+      reseñas: [],  
     });
     return this.actividadRepository.save(actividad);
   }
@@ -30,7 +29,7 @@ export class ActividadService {
   async findOneById(id: number): Promise<Actividad> {
     const actividad = await this.actividadRepository.findOne({
       where: { id },
-      relations: ['inscritos', 'reseñas'], // Cargar relaciones según necesidad
+      relations: ['inscritos', 'reseñas'],
     });
     if (!actividad) {
       throw new NotFoundException(`Actividad con ID ${id} no encontrada.`);
@@ -39,18 +38,16 @@ export class ActividadService {
   }
 
   async findAllActividadesByDate(fecha: string): Promise<Actividad[]> {
-    // Podrías querer validar el formato de la fecha aquí o en un DTO específico si este método
-    // se expone a través de un DTO en el body. Por ahora, se asume una cadena simple.
     const actividades = await this.actividadRepository.find({
       where: { fecha },
       relations: ['inscritos', 'reseñas'],
     });
-    // No es un error si no hay actividades para esa fecha, simplemente se retorna un array vacío.
+
     return actividades;
   }
 
   async cambiarEstado(actividadId: number, nuevoEstado: number): Promise<Actividad> {
-    const actividad = await this.findOneById(actividadId); // Reutiliza findOneById que ya maneja NotFound
+    const actividad = await this.findOneById(actividadId);
 
     // Validar que nuevoEstado sea 0, 1 o 2
     if (![0, 1, 2].includes(nuevoEstado)) {
@@ -65,22 +62,19 @@ export class ActividadService {
         );
       }
     } else if (nuevoEstado === 2) { // Finalizada
-      // La condición original era "si no hay cupo", que es lo mismo que cupoMaximo <= inscritos.length
       if (actividad.inscritos.length < actividad.cupoMaximo) {
         throw new BadRequestException(
           `No se puede finalizar la actividad. Aún hay cupos disponibles (${actividad.inscritos.length}/${actividad.cupoMaximo}). Se requiere cupo lleno.`,
         );
       }
     }
-    // Si es estado 0 (Abierta), no hay restricciones adicionales para cambiar a este estado desde otro.
 
     actividad.estado = nuevoEstado;
     return this.actividadRepository.save(actividad);
   }
 
   async update(id: number, updateActividadDto: UpdateActividadDto): Promise<Actividad> {
-    // `preload` carga la entidad si existe y luego fusiona los nuevos datos.
-    // Si no existe, retorna undefined.
+
     const actividad = await this.actividadRepository.preload({
         id: id,
         ...updateActividadDto,
@@ -88,7 +82,6 @@ export class ActividadService {
     if (!actividad) {
         throw new NotFoundException(`Actividad con ID ${id} no encontrada para actualizar.`);
     }
-    // Validaciones de DTO para update (longitud título, sin símbolos) las maneja ValidationPipe.
     return this.actividadRepository.save(actividad);
   }
 

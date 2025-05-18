@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { EstudianteModule } from './estudiante/estudiante.module';
 import { ActividadModule } from './actividad/actividad.module';
 import { ReseñaModule } from './reseña/reseña.module';
-// Importar módulos de las entidades aquí
 
 @Module({
   imports: [
@@ -18,7 +17,7 @@ import { ReseñaModule } from './reseña/reseña.module';
     EstudianteModule,
     ActividadModule,
     ReseñaModule,
-    // Registrar los módulos de entidad aquí
+
   ],
   controllers: [AppController],
   providers: [AppService],

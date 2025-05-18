@@ -3,7 +3,7 @@ import { ReseñaService } from './reseña.service';
 import { CreateReseñaDto } from './dto/create-reseña.dto';
 import { UpdateReseñaDto } from './dto/update-reseña.dto';
 
-@Controller('reseñas') // Plural
+@Controller('resenias') 
 export class ReseñaController {
   constructor(private readonly reseñaService: ReseñaService) {}
 
@@ -32,7 +32,7 @@ export class ReseñaController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.OK) // O NO_CONTENT
+  @HttpCode(HttpStatus.OK) 
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.reseñaService.remove(id);
   }

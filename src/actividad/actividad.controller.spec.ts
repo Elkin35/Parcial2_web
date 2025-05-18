@@ -81,21 +81,7 @@ describe('ActividadController', () => {
     });
 
     it('debería lanzar BadRequestException si la fecha no se proporciona', async () => {
-        // Simula que el @Query('fecha') devuelve undefined o null
-        // En una prueba real de controlador, esto sería manejado por pipes o guardias,
-        // pero aquí estamos probando la lógica del controlador directamente.
-        // El DTO o el pipe global manejaría la validación de 'fecha'
-        // Para este mock, asumimos que si fecha es falsy, el controlador lanza el error.
-        // Sin embargo, el controlador como está escrito no hace esta validación directamente,
-        // confía en que el parámetro 'fecha' será provisto.
-        // Si quisieras probar el error de falta de 'fecha', necesitarías un DTO con @IsNotEmpty
-        // y que el ValidationPipe actúe.
 
-        // Esta prueba es más para el servicio o para una prueba e2e.
-        // Para el controlador, nos enfocamos en que llame al servicio con el parámetro.
-        // Si el controller hiciera la validación:
-        // await expect(controller.findAllActividadesByDate(null as any)).rejects.toThrow(BadRequestException);
-        // Por ahora, solo probamos el caso exitoso.
         const fecha = '2024-01-01';
         await controller.findAllActividadesByDate(fecha);
         expect(service.findAllActividadesByDate).toHaveBeenCalledWith(fecha);

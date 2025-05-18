@@ -23,7 +23,7 @@ export class ReseñaService {
 
     const estudiante = await this.estudianteRepository.findOne({
         where: { id: estudianteId },
-        relations: ['actividades'] // Necesario para verificar inscripción
+        relations: ['actividades']
     });
     if (!estudiante) {
       throw new NotFoundException(`Estudiante con ID ${estudianteId} no encontrado.`);
@@ -31,9 +31,7 @@ export class ReseñaService {
 
     const actividad = await this.actividadRepository.findOne({
         where: { id: actividadId },
-        // No es estrictamente necesario cargar 'inscritos' aquí si solo verificamos
-        // a través de estudiante.actividades, pero podría ser útil para otras validaciones.
-        // relations: ['inscritos']
+
     });
     if (!actividad) {
       throw new NotFoundException(`Actividad con ID ${actividadId} no encontrada.`);
@@ -48,7 +46,6 @@ export class ReseñaService {
       throw new BadRequestException('El estudiante no estuvo inscrito en esta actividad y no puede agregar una reseña.');
     }
     
-    // Opcional: Verificar si ya existe una reseña de este estudiante para esta actividad
     const existingResena = await this.reseñaRepository.findOne({
         where: {
             estudiante: { id: estudianteId },
@@ -63,9 +60,9 @@ export class ReseñaService {
     const nuevaReseña = this.reseñaRepository.create({
       comentario,
       calificacion,
-      fecha, // Asegúrate que el formato de fecha sea consistente o usa Date
-      estudiante, // Asignar la entidad completa
-      actividad,  // Asignar la entidad completa
+      fecha, 
+      estudiante, 
+      actividad,  
     });
 
     return this.reseñaRepository.save(nuevaReseña);
@@ -73,7 +70,7 @@ export class ReseñaService {
 
   async findAll(): Promise<Reseña[]> {
     return this.reseñaRepository.find({
-      relations: ['estudiante', 'actividad'], // Cargar para mostrar información relacionada
+      relations: ['estudiante', 'actividad'],
     });
   }
 
@@ -89,9 +86,7 @@ export class ReseñaService {
   }
 
   async update(id: number, updateReseñaDto: UpdateReseñaDto): Promise<Reseña> {
-    // `preload` es bueno aquí. No necesitamos re-validar estudianteId y actividadId si no cambian.
-    // Si pudieran cambiar, la lógica sería más compleja para revalidar la inscripción y estado.
-    // Por ahora, asumimos que solo se actualizan comentario, calificación, fecha.
+
     const reseña = await this.reseñaRepository.preload({
         id: id,
         ...updateReseñaDto,
@@ -100,14 +95,6 @@ export class ReseñaService {
     if (!reseña) {
         throw new NotFoundException(`Reseña con ID ${id} no encontrada para actualizar.`);
     }
-
-    // Si estudianteId o actividadId están en UpdateReseñaDto y pueden cambiar,
-    // necesitarías volver a cargar las entidades Estudiante y Actividad y revalidar
-    // las condiciones de 'agregarReseña'. Por simplicidad, asumimos que no cambian
-    // o que el DTO solo permite actualizar campos simples.
-    // Si permites cambiar estudianteId/actividadId, la lógica se complica:
-    // if (updateReseñaDto.estudianteId && reseña.estudiante.id !== updateReseñaDto.estudianteId) { /* revalidar */ }
-    // if (updateReseñaDto.actividadId && reseña.actividad.id !== updateReseñaDto.actividadId) { /* revalidar */ }
 
     return this.reseñaRepository.save(reseña);
   }
