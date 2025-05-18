@@ -1,6 +1,6 @@
 
-import { Actividad } from "src/actividad/entities/actividad.entity";
-import { Reseña } from "src/reseña/entities/reseña.entity";
+import { Actividad } from '../../actividad/entities/actividad.entity';
+import { Reseña } from '../../reseña/entities/reseña.entity';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

@@ -1,5 +1,5 @@
-import { Estudiante } from "src/estudiante/entities/estudiante.entity";
-import { Reseña } from "src/reseña/entities/reseña.entity";
+import { Estudiante } from '../../estudiante/entities/estudiante.entity';
+import { Reseña } from '../../reseña/entities/reseña.entity';
 import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
