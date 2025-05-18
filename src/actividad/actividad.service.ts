@@ -1,146 +1,102 @@
-import { Injectable } from '@nestjs/common';
-import { CreateActividadDto } from './dto/create-actividad.dto';
-import { UpdateActividadDto } from './dto/update-actividad.dto';
-import { Estudiante } from 'src/estudiante/entities/estudiante.entity';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Reseña } from 'src/reseña/entities/reseña.entity';
 import { Actividad } from './entities/actividad.entity';
-import { CreateReseñaDto } from 'src/reseña/dto/create-reseña.dto';
-import { CreateEstudianteDto } from 'src/estudiante/dto/create-estudiante.dto';
+import { CreateActividadDto } from './dto/create-actividad.dto';
+import { UpdateActividadDto } from './dto/update-actividad.dto'; // Necesario para update
 
 @Injectable()
 export class ActividadService {
-  
   constructor(
-      @InjectRepository(Estudiante)
-      private estudianteRepository: Repository<Estudiante>,
-      @InjectRepository(Reseña)
-      private reseñaRepository: Repository<Reseña>,
-      @InjectRepository(Actividad)
-      private actividadRepository: Repository<Actividad>,
-    ) {}
+    @InjectRepository(Actividad)
+    private readonly actividadRepository: Repository<Actividad>,
+  ) {}
 
-    async crearActividad(createActividadDto: CreateActividadDto) {
-      const actividad = this.actividadRepository.create({
-        ...createActividadDto,
-        inscritos: [],
-        reseñas: []
-      });
-      return await this.actividadRepository.save(actividad);
+  async crearActividad(createActividadDto: CreateActividadDto): Promise<Actividad> {
+    // Validaciones de DTO (longitud título, sin símbolos) las maneja ValidationPipe.
+    // El estado por defecto es 0, ya definido en el DTO.
+    const actividad = this.actividadRepository.create({
+      ...createActividadDto,
+      inscritos: [], // Inicializar si es necesario, aunque TypeORM puede manejarlo
+      reseñas: [],   // Inicializar si es necesario
+    });
+    return this.actividadRepository.save(actividad);
+  }
+
+  async findAll(): Promise<Actividad[]> {
+    return this.actividadRepository.find({ relations: ['inscritos', 'reseñas'] });
+  }
+
+  async findOneById(id: number): Promise<Actividad> {
+    const actividad = await this.actividadRepository.findOne({
+      where: { id },
+      relations: ['inscritos', 'reseñas'], // Cargar relaciones según necesidad
+    });
+    if (!actividad) {
+      throw new NotFoundException(`Actividad con ID ${id} no encontrada.`);
+    }
+    return actividad;
+  }
+
+  async findAllActividadesByDate(fecha: string): Promise<Actividad[]> {
+    // Podrías querer validar el formato de la fecha aquí o en un DTO específico si este método
+    // se expone a través de un DTO en el body. Por ahora, se asume una cadena simple.
+    const actividades = await this.actividadRepository.find({
+      where: { fecha },
+      relations: ['inscritos', 'reseñas'],
+    });
+    // No es un error si no hay actividades para esa fecha, simplemente se retorna un array vacío.
+    return actividades;
+  }
+
+  async cambiarEstado(actividadId: number, nuevoEstado: number): Promise<Actividad> {
+    const actividad = await this.findOneById(actividadId); // Reutiliza findOneById que ya maneja NotFound
+
+    // Validar que nuevoEstado sea 0, 1 o 2
+    if (![0, 1, 2].includes(nuevoEstado)) {
+        throw new BadRequestException('El estado debe ser 0 (Abierta), 1 (Cerrada) o 2 (Finalizada).');
     }
 
-    async findOne(id: number) {
-      return await this.actividadRepository.findOne({ 
-        where: { id },
-        relations: ['inscritos', 'reseñas']
-      });
+    if (nuevoEstado === 1) { // Cerrada
+      const porcentajeOcupado = (actividad.inscritos.length / actividad.cupoMaximo) * 100;
+      if (porcentajeOcupado < 80) {
+        throw new BadRequestException(
+          `No se puede cerrar la actividad. El cupo (${porcentajeOcupado.toFixed(2)}%) no ha alcanzado el 80%. Se requieren ${Math.ceil(actividad.cupoMaximo * 0.8)} inscritos. Actualmente hay ${actividad.inscritos.length}.`,
+        );
+      }
+    } else if (nuevoEstado === 2) { // Finalizada
+      // La condición original era "si no hay cupo", que es lo mismo que cupoMaximo <= inscritos.length
+      if (actividad.inscritos.length < actividad.cupoMaximo) {
+        throw new BadRequestException(
+          `No se puede finalizar la actividad. Aún hay cupos disponibles (${actividad.inscritos.length}/${actividad.cupoMaximo}). Se requiere cupo lleno.`,
+        );
+      }
     }
+    // Si es estado 0 (Abierta), no hay restricciones adicionales para cambiar a este estado desde otro.
 
-    async findAllActividadesByDate(fecha: string) {
-      return await this.actividadRepository.find({ 
-        where: { fecha },
-        relations: ['inscritos', 'reseñas']
-      });
+    actividad.estado = nuevoEstado;
+    return this.actividadRepository.save(actividad);
+  }
+
+  async update(id: number, updateActividadDto: UpdateActividadDto): Promise<Actividad> {
+    // `preload` carga la entidad si existe y luego fusiona los nuevos datos.
+    // Si no existe, retorna undefined.
+    const actividad = await this.actividadRepository.preload({
+        id: id,
+        ...updateActividadDto,
+    });
+    if (!actividad) {
+        throw new NotFoundException(`Actividad con ID ${id} no encontrada para actualizar.`);
     }
+    // Validaciones de DTO para update (longitud título, sin símbolos) las maneja ValidationPipe.
+    return this.actividadRepository.save(actividad);
+  }
 
-    async cambiarEstado(actividadId: number, estado: number) {
-      const actividad = await this.findOne(actividadId);
-      
-      if (!actividad) {
-        throw new Error('Actividad no encontrada');
-      }
-
-      if (estado === 1) { // Cerrada
-        const porcentajeOcupado = (actividad.inscritos.length / actividad.cupoMaximo) * 100;
-        if (porcentajeOcupado < 80) {
-          throw new Error('No se puede cerrar la actividad, el cupo no ha alcanzado el 80%');
-        }
-      } else if (estado === 2) { // Finalizada
-        if (actividad.inscritos.length < actividad.cupoMaximo) {
-          throw new Error('No se puede finalizar la actividad, aún hay cupos disponibles');
-        }
-      }
-
-      actividad.estado = estado;
-      return await this.actividadRepository.save(actividad);
+  async remove(id: number): Promise<{ message: string }> {
+    const result = await this.actividadRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Actividad con ID ${id} no encontrada para eliminar.`);
     }
-
-    async createEstudiante(createEstudianteDto: CreateEstudianteDto) {
-      const estudiante = this.estudianteRepository.create({
-        ...createEstudianteDto,
-        actividades: [],
-        reseñas: []
-      });
-      return await this.estudianteRepository.save(estudiante);
-    }
-
-    async findEstudianteById(id: number) {
-      return await this.estudianteRepository.findOne({
-        where: { id },
-        relations: ['actividades', 'reseñas']
-      });
-    }
-
-    async inscribirseActividad(estudianteId: number, actividadId: number) {
-      const estudiante = await this.findEstudianteById(estudianteId);
-      const actividad = await this.findOne(actividadId);
-
-      if (!estudiante) {
-        throw new Error('Estudiante no encontrado');
-      }
-
-      if (!actividad) {
-        throw new Error('Actividad no encontrada');
-      }
-
-      if (actividad.estado !== 0) {
-        throw new Error('La actividad no está abierta para inscripciones');
-      }
-
-      if (actividad.inscritos.length >= actividad.cupoMaximo) {
-        throw new Error('No hay cupos disponibles en la actividad');
-      }
-
-      const yaInscrito = estudiante.actividades.some(act => act.id === actividadId);
-      if (yaInscrito) {
-        throw new Error('El estudiante ya está inscrito en esta actividad');
-      }
-
-      actividad.inscritos.push(estudiante);
-      return await this.actividadRepository.save(actividad);
-    }
-
-    async agregarReseña(createReseñaDto: CreateReseñaDto) {
-      const { estudianteId, actividadId, ...reseñaData } = createReseñaDto;
-      
-      const actividad = await this.findOne(actividadId);
-      const estudiante = await this.findEstudianteById(estudianteId);
-      
-      if (!actividad) {
-        throw new Error('Actividad no encontrada');
-      }
-      
-      if (!estudiante) {
-        throw new Error('Estudiante no encontrado');
-      }
-      
-      if (actividad.estado !== 2) {
-        throw new Error('Solo se pueden agregar reseñas a actividades finalizadas');
-      }
-      
-      const inscrito = actividad.inscritos.some(est => est.id === estudianteId);
-      if (!inscrito) {
-        throw new Error('El estudiante no estaba inscrito en la actividad');
-      }
-      
-      const reseña = this.reseñaRepository.create({
-        ...reseñaData,
-        estudiante,
-        actividad
-      });
-      
-      return await this.reseñaRepository.save(reseña);
-    }
-
+    return { message: `Actividad con ID ${id} eliminada correctamente.` };
+  }
 }
